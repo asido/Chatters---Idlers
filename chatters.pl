@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+#
+# History:
+#
+#	2012-05-01, Arvydas Sidorenko <asido4@gmail.com>
+# 		Version 0.1: initial release
+#
 
 use strict;
 use warnings;
