@@ -6,12 +6,14 @@ my $script_name     = "chatters";
 # The array with groups where the chatters are going to be added
 my %chatter_groups  = ();
 
-my $chatter_timeout = 60000 * 5; # 5min
+my $chatter_timeout = 600; # 10min (in seconds)
 
 weechat::register($script_name, "Arvydas Sidorenko <asido4\@gmail.com>", $version, "GPL2", "Groups people into chatters and idlers", "", "");
 
 # Callback whenever you join a channel
-weechat::hook_signal("irc_channel_opened", "channel_joined_cb", "ff");
+weechat::hook_signal("irc_channel_opened", "channel_joined_cb", "");
+# Close a channel
+weechat::hook_signal("buffer_closing", "buffer_close_cb", "");
 # Callback whenever someone leaves the channel
 weechat::hook_signal("nicklist_nick_removed", "on_leave_cb", "");
 # Callback whenever someone writes something in the channel
@@ -23,7 +25,7 @@ weechat::hook_timer(60000, 0, 0, "cleanup_chatters", 0);
 # Channel join callback
 sub channel_joined_cb
 {
-    # $_[0] - unknown, weechat::print always print `ff`
+    # $_[0] - callback data (3rd hook arg)
     # $_[1] - signal (irc_channel_opened)
     # $_[2] - buffer pointer
     my $buffer = $_[2];
@@ -33,10 +35,25 @@ sub channel_joined_cb
 }
 
 ###############################################################################
+# Buffer close callback
+sub buffer_close_cb
+{
+    # $_[0] - callback data (3rd hook arg)
+    # $_[1] - signal (buffer_closing)
+    # $_[2] - buffer pointer
+    my $channel = buf_to_channel($_[2]);
+
+    if ($chatter_groups{$channel})
+    {
+        delete $chatter_groups{$channel};
+    }
+}
+
+###############################################################################
 # Gets called when someones writes in a channel
 sub msg_cb
 {
-    # $_[0] - unknown (weechat::print prints nothing)
+    # $_[0] - callback data (3rd hook arg)
     # $_[1] - event name
     # $_[2] - the message:
     #	 :Asido!~asido@2b600000.rev.myisp.com PRIVMSG #linux :yoo
@@ -62,13 +79,11 @@ sub msg_cb
     $nick = $tokens[0];
     $nick =~ m/:(.*)!/;
     $nick = $1;
-    weechat::print("", "${nick}\n");
     $channel = channel_to_key($tokens[2]);
     
     unless ($chatter_groups{$channel})
     {
         $chatter_groups{$channel}{'group'} = weechat::nicklist_add_group($channel, "", $channel, "red", "1");
-        weechat::print("", "YS::Created group: ${channel}");
     }
     
     $chatter = get_chatter($chatter_groups{$channel}, $nick);
@@ -125,6 +140,7 @@ sub on_leave_cb
         if ($chatter)
         {
             remove_chatter($chatter_groups{$channel}, $chatter);
+            delete $chatter_groups{$channel}{'nicks'}{$nick};
         }
     }
 
@@ -139,7 +155,7 @@ sub cleanup_chatters
     {
         foreach my $nick (keys %{ $chatter_groups{$channel}{'nicks'} })
         {
-            if (time() - $chatter_groups{$channel}{'nicks'}{$nick}{'last_msg_time'} > $chatter_timeout)
+            if (time() - $chatter_groups{$channel}{'nicks'}{$nick}{'last_msg_time'} >= $chatter_timeout)
             {
                 my $chatter = get_chatter($chatter_groups{$channel}, $nick);
                 remove_chatter($chatter_groups{$channel}, $chatter);
@@ -186,7 +202,7 @@ sub add_chatter
     # Prepend a space or add will fail since the nick is already in the root nicklist
     $nick = " " . $nick;
 
-    unless (weechat::nicklist_add_nick($channel->{'buffer'}, $channel->{'group'}, $nick, "yellow", ">>", "red", 1))
+    unless (weechat::nicklist_add_nick($channel->{'buffer'}, $channel->{'group'}, $nick, "yellow", "", "red", 1))
     {
         _log("failed to add nick to nicklist. line: " . __LINE__);
     }
@@ -198,15 +214,6 @@ sub refresh_chatter
 {
     my $channel = shift;
     my $nick    = shift;
-
-    unless ($channel)
-    {
-        weechat::print("", "11");
-    }
-    unless ($nick)
-    {
-        weechat::print("", "22");
-    }
 
     $channel->{'nicks'}{$nick}{'last_msg_time'} = time();
 }
