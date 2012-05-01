@@ -1,3 +1,21 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2012 Arvydas Sidorenko <asido4@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 use strict;
 use warnings;
 
@@ -8,7 +26,7 @@ my %chatter_groups  = ();
 
 my $chatter_timeout = 600; # 10min (in seconds)
 
-weechat::register($script_name, "Arvydas Sidorenko <asido4\@gmail.com>", $version, "GPL2", "Groups people into chatters and idlers", "", "");
+weechat::register($script_name, "Arvydas Sidorenko <asido4\@gmail.com>", $version, "GPL3", "Groups people into chatters and idlers", "", "");
 
 # Callback whenever you join a channel
 weechat::hook_signal("irc_channel_opened", "channel_joined_cb", "");
