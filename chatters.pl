@@ -202,7 +202,7 @@ sub add_chatter
     # Prepend a space or add will fail since the nick is already in the root nicklist
     $nick = " " . $nick;
 
-    unless (weechat::nicklist_add_nick($channel->{'buffer'}, $channel->{'group'}, $nick, "yellow", "", "red", 1))
+    unless (weechat::nicklist_add_nick($channel->{'buffer'}, $channel->{'group'}, $nick, "yellow", ">>", "red", 1))
     {
         _log("failed to add nick to nicklist. line: " . __LINE__);
     }
@@ -264,7 +264,7 @@ sub channel_to_key
 sub channel_to_groupname
 {
     my $channel = shift;
-    return "0|".$channel;
+    return "%|".$channel;
 }
 
 ###############################################################################
