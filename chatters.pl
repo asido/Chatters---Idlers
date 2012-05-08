@@ -93,6 +93,12 @@ sub msg_cb
         return weechat::WEECHAT_RC_ERROR;
     }
 
+	# Ignore private messages
+	if ($msg =~ m/PRIVMSG (?!#)(\w+)/)
+	{
+		return weechat::WEECHAT_RC_OK;
+	}
+
     @tokens = split(/ /, $msg);
     if (@tokens == 0)
     {
