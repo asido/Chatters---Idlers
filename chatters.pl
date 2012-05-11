@@ -67,7 +67,7 @@ if (not weechat::config_is_set_plugin("nick_timeout"))
 	weechat::config_set_plugin("nick_timeout", "600");
 }
 
-weechat::bar_item_new($chatters_bar_name, "chatters_bar_cb", "");
+weechat::bar_item_new($chatters_bar_item_name, "chatters_bar_cb", "");
 
 ###############################################################################
 # Buffer update callback
@@ -192,7 +192,7 @@ sub on_leave_cb
     if ($chatter_groups{$channel} and $chatter_groups{$channel}{$nick})
     {
         delete $chatter_groups{$channel}{$nick};
-		weechat::bar_item_update($chatters_bar_name);
+		weechat::bar_item_update($chatters_bar_item_name);
     }
 
     return weechat::WEECHAT_RC_OK;
@@ -219,7 +219,7 @@ sub cleanup_chatters
 
 	if ($changed)
 	{
-		weechat::bar_item_update($chatters_bar_name);
+		weechat::bar_item_update($chatters_bar_item_name);
 	}
 }
 
