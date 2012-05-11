@@ -187,7 +187,7 @@ sub on_leave_cb
 }
 
 ###############################################################################
-# Removes nicks from chatter list who idle for too long
+# Script config edit callback
 sub config_change_cb
 {
     # $_[0] - data
