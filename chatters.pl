@@ -52,6 +52,16 @@ my $chatters_bar_item_name  = "chatters";
 
 weechat::register($script_name, "Arvydas Sidorenko <asido4\@gmail.com>", $version, "GPL3", "Groups people into chatters and idlers", "", "");
 
+# Check configs
+my %default_settings = (frame_color    => "red",
+                        nick_color     => "yellow",
+                        nick_timeout   => 600);
+for (keys %default_settings)
+{
+    weechat::config_set_plugin($_ => $default_settings{$_}) unless weechat::config_is_set_plugin($_);
+}
+
+
 # Close a channel
 weechat::hook_signal("buffer_closing", "buffer_close_cb", "");
 # Callback whenever someone leaves the channel
@@ -62,20 +72,6 @@ weechat::hook_signal("*,irc_in_PRIVMSG", "msg_cb", "");
 weechat::hook_timer(60000, 0, 0, "cleanup_chatters", 0);
 # On config change
 weechat::hook_config("plugins.var.perl.${script_name}.*", "config_change_cb", "");
-
-# Check script configs
-if (not weechat::config_is_set_plugin("nick_color"))
-{
-    weechat::config_set_plugin("nick_color", "yellow");
-}
-if (not weechat::config_is_set_plugin("frame_color"))
-{
-    weechat::config_set_plugin("frame_color", "red");
-}
-if (not weechat::config_is_set_plugin("nick_timeout"))
-{
-    weechat::config_set_plugin("nick_timeout", "600");
-}
 
 weechat::bar_item_new($chatters_bar_item_name, "chatters_bar_cb", "");
 
