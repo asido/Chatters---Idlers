@@ -20,6 +20,9 @@
 #
 #   2012-05-01, Arvydas Sidorenko <asido4@gmail.com>
 #       Version 0.1: initial release
+#	2012-05-11, Arvydas Sidorenko <asido4@gmail.com>
+#		Version 0.2: rewritten script using bar_item to store the chatters
+#		instead of nicklist_group
 #
 
 use strict;
