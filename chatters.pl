@@ -61,7 +61,7 @@ weechat::hook_signal("*,irc_in_PRIVMSG", "msg_cb", "");
 # Chatter observer callback
 weechat::hook_timer(60000, 0, 0, "cleanup_chatters", 0);
 # On config change
-weechat::hook_config("plugins.var.perl.".$script_name.".*", "config_change_cb", "");
+weechat::hook_config("plugins.var.perl.${script_name}.*", "config_change_cb", "");
 
 # Check script configs
 if (not weechat::config_is_set_plugin("nick_color"))
