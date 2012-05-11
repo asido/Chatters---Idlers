@@ -16,13 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+# Usage:
+#   To show the bar: /set weechat.bar.nicklist.items "chatters,buffer_nicklist"
+# Config options:
+#   /set plugins.var.perl.chatters.frame_color "red"
+#   /set plugins.var.perl.chatters.nick_color "yellow"
+#   /set plugins.var.perl.chatters.nick_timeout "600"
+#
+#
 # History:
 #
 #   2012-05-01, Arvydas Sidorenko <asido4@gmail.com>
 #       Version 0.1: initial release
-#	2012-05-11, Arvydas Sidorenko <asido4@gmail.com>
-#		Version 0.2: rewritten script using bar_item to store the chatters
-#		instead of nicklist_group
+#   2012-05-11, Arvydas Sidorenko <asido4@gmail.com>
+#       Version 0.2: rewritten script using bar_item to store the chatters
+#       instead of nicklist_group
 #
 
 use strict;
@@ -39,8 +47,8 @@ my $script_name     = "chatters";
 #               `- "nick3" -- last msg timestamp
 #   "#channel2" -- "nick1" -- last msg timestamp
 #               `- ...
-my %chatter_groups      = ();
-my $chatters_bar_item_name   = "chatters";
+my %chatter_groups          = ();
+my $chatters_bar_item_name  = "chatters";
 
 weechat::register($script_name, "Arvydas Sidorenko <asido4\@gmail.com>", $version, "GPL3", "Groups people into chatters and idlers", "", "");
 
@@ -52,19 +60,21 @@ weechat::hook_signal("nicklist_nick_removed", "on_leave_cb", "");
 weechat::hook_signal("*,irc_in_PRIVMSG", "msg_cb", "");
 # Chatter observer callback
 weechat::hook_timer(60000, 0, 0, "cleanup_chatters", 0);
+# On config change
+weechat::hook_config("plugins.var.perl.".$script_name.".*", "config_change_cb", "");
 
 # Check script configs
 if (not weechat::config_is_set_plugin("nick_color"))
 {
-	weechat::config_set_plugin("nick_color", "yellow");
+    weechat::config_set_plugin("nick_color", "yellow");
 }
 if (not weechat::config_is_set_plugin("frame_color"))
 {
-	weechat::config_set_plugin("frame_color", "red");
+    weechat::config_set_plugin("frame_color", "red");
 }
 if (not weechat::config_is_set_plugin("nick_timeout"))
 {
-	weechat::config_set_plugin("nick_timeout", "600");
+    weechat::config_set_plugin("nick_timeout", "600");
 }
 
 weechat::bar_item_new($chatters_bar_item_name, "chatters_bar_cb", "");
@@ -79,10 +89,10 @@ sub chatters_bar_cb
     my $str     =  "";
     my $buffer  = weechat::window_get_pointer($_[2], "buffer");
     my $channel = get_buf_channel($buffer);
-	my $frame_color = weechat::color(weechat::config_get_plugin("frame_color"));
-	my $nick_color = weechat::color(weechat::config_get_plugin("nick_color"));
+    my $frame_color = weechat::color(weechat::config_get_plugin("frame_color"));
+    my $nick_color = weechat::color(weechat::config_get_plugin("nick_color"));
 
-	$str = $frame_color . "-- Chatters -----\n";
+    $str = $frame_color . "-- Chatters -----\n";
 
     if ($channel and $chatter_groups{$channel})
     {
@@ -160,7 +170,7 @@ sub msg_cb
 # Gets called when someones leaves a channel
 sub on_leave_cb
 {
-    # $_[0] - unknown (weechat::print prints nothing)
+    # $_[0] - data
     # $_[1] - event name (nicklist_nick_removed)
     # $_[2] - 0x1ffda70,spoty (<buffer_pointer>,<nick>
     my $buf     = $_[2];
@@ -192,7 +202,7 @@ sub on_leave_cb
     if ($chatter_groups{$channel} and $chatter_groups{$channel}{$nick})
     {
         delete $chatter_groups{$channel}{$nick};
-		weechat::bar_item_update($chatters_bar_item_name);
+        weechat::bar_item_update($chatters_bar_item_name);
     }
 
     return weechat::WEECHAT_RC_OK;
@@ -200,10 +210,29 @@ sub on_leave_cb
 
 ###############################################################################
 # Removes nicks from chatter list who idle for too long
+sub config_change_cb
+{
+    # $_[0] - data
+    # $_[1] - option name
+    # $_[2] - new value
+    my $opt = $_[1];
+
+    if ($opt =~ /frame_color$/ or $opt =~ /nick_color$/)
+    {
+        weechat::bar_item_update($chatters_bar_item_name);
+    }
+    elsif ($opt =~ /nick_timeout$/)
+    {
+        cleanup_chatters();
+    }
+}
+
+###############################################################################
+# Removes nicks from chatter list who idle for too long
 sub cleanup_chatters
 {
-	my $changed = 0;
-    my $nick_timeout = weechat::color(weechat::config_get_plugin("nick_timeout"));
+    my $changed = 0;
+    my $nick_timeout = weechat::config_get_plugin("nick_timeout");
 
     foreach my $channel (keys %chatter_groups)
     {
@@ -212,15 +241,15 @@ sub cleanup_chatters
             if (time() - $chatter_groups{$channel}{$nick} >= $nick_timeout)
             {
                 delete $chatter_groups{$channel}{$nick};
-				$changed = 1;
+                $changed = 1;
             }
         }
     }
 
-	if ($changed)
-	{
-		weechat::bar_item_update($chatters_bar_item_name);
-	}
+    if ($changed)
+    {
+        weechat::bar_item_update($chatters_bar_item_name);
+    }
 }
 
 ###############################################################################
