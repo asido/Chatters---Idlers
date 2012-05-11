@@ -150,32 +150,9 @@ sub on_leave_cb
 {
     # $_[0] - data
     # $_[1] - event name (nicklist_nick_removed)
-    # $_[2] - 0x1ffda70,spoty (<buffer_pointer>,<nick>
-    my $buf     = $_[2];
-    my $nick    = $_[2];
-    my $channel = get_buf_channel($buf);
-
-    # Extract buffer pointer
-    if ($buf =~ m/(.*),/)
-    {
-        $buf = $1;
-    }
-    else
-    {
-        _log("couldn't extract buffer pointer. line: " . __LINE__);
-        return weechat::WEECHAT_RC_ERROR;
-    }
-    
-    # Extract nick
-    if ($nick =~ m/.*,(.*)/)
-    {
-        $nick = $1;
-    }
-    else
-    {
-        _log("couldn't extract nick. line: " . __LINE__);
-        return weechat::WEECHAT_RC_ERROR;
-    }
+    # $_[2] - 0x1ffda70,spoty (<buffer_pointer>,<nick>)
+    my ($buf, $nick)    = split ",", $_[2];
+    my $channel         = get_buf_channel($buf);
 
     if ($chatter_groups{$channel} and $chatter_groups{$channel}{$nick})
     {
