@@ -130,37 +130,15 @@ sub msg_cb
     # $_[1] - event name
     # $_[2] - the message:
     #    :Asido!~asido@2b600000.rev.myisp.com PRIVMSG #linux :yoo
-    my $msg     = $_[2];
-    my $nick    = "";
-    my $channel = "";
-    my @tokens  = ();
-    my $chatter;
-
-    unless (defined($msg))
-    {
-        _log("message arrived empty. line: " . __LINE__);
-        return weechat::WEECHAT_RC_ERROR;
-    }
+    my $msg = weechat::info_get_hashtable("irc_message_parse" => + { "message" => $_[2] });
 
     # Ignore private messages
-    if ($msg =~ m/PRIVMSG (?!#)(\w+)/)
+    unless ($msg->{channel} =~ /^#/)
     {
         return weechat::WEECHAT_RC_OK;
     }
 
-    @tokens = split(/ /, $msg);
-    if (@tokens == 0)
-    {
-        _log("feels like corrupted message. line: " . __LINE__);
-        return weechat::WEECHAT_RC_ERROR;
-    }
-
-    $nick = $tokens[0];
-    $nick =~ m/:(.*)!/;
-    $nick = $1;
-    $channel = $tokens[2];
-
-    $chatter_groups{$channel}{$nick} = time();
+    $chatter_groups{$msg->{channel}}{$msg->{nick}} = time();
     weechat::bar_item_update($chatters_bar_item_name);
 
     return weechat::WEECHAT_RC_OK;
