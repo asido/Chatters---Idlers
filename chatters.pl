@@ -92,7 +92,7 @@ sub chatters_bar_cb
 
     if ($channel and $chatter_groups{$channel})
     {
-        foreach my $nick (keys %{ $chatter_groups{$channel} })
+        foreach my $nick (sort {uc($a) cmp uc($b)} keys %{ $chatter_groups{$channel} })
         {
             $str .= $nick_color . $nick . "\n";
         }
@@ -187,6 +187,8 @@ sub cleanup_chatters
 
     foreach my $channel (keys %chatter_groups)
     {
+        sort_chatters($channel);
+
         foreach my $nick (keys %{ $chatter_groups{$channel} })
         {
             if (time() - $chatter_groups{$channel}{$nick} >= $nick_timeout)
