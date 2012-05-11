@@ -60,7 +60,7 @@ weechat::hook_timer(60000, 0, 0, "cleanup_chatters", 0);
 weechat::bar_item_new($chatters_bar_name, "chatters_bar_cb", "");
 
 ###############################################################################
-# Buffer close callback
+# Chatter update callback
 sub chatters_bar_cb
 {
     # $_[0] - data
