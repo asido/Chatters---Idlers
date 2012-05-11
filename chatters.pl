@@ -187,8 +187,6 @@ sub cleanup_chatters
 
     foreach my $channel (keys %chatter_groups)
     {
-        sort_chatters($channel);
-
         foreach my $nick (keys %{ $chatter_groups{$channel} })
         {
             if (time() - $chatter_groups{$channel}{$nick} >= $nick_timeout)
