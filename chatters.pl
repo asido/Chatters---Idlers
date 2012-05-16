@@ -33,14 +33,14 @@
 #       Version 0.2: rewritten script using bar_item to store the chatters
 #       instead of nicklist_group
 #   2012-05-16, Arvydas Sidorenko <asido4@gmail.com>
-#		Bug fix: same channels under different servers share a common
-#		chatter list.
+#		Version 0.2.1: Bug fix: same channels under different servers share a
+#		common chatter list.
 #
 
 use strict;
 use warnings;
 
-my $version         = "0.2";
+my $version         = "0.2.1";
 my $script_name     = "chatters";
 
 # A hash with groups where the chatters are going to be added
