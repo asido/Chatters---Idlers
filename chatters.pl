@@ -31,14 +31,14 @@
 #       Version 0.1: initial release
 #   2012-05-11, Arvydas Sidorenko <asido4@gmail.com>
 #       Version 0.2: rewritten script using bar_item to store the chatters
-#       instead of nicklist_group
+#                    instead of nicklist_group
 #   2012-05-16, Arvydas Sidorenko <asido4@gmail.com>
 #		Version 0.2.1: Bug fix: same channels under different servers share a
-#		common chatter list.
-#   2012-05-18, Arvydas Sidorenko <asido4@gmail.com>
-#               Version 0.3: missing return value for callbacks fixed
-#                            version check added
-#                            improved option handling
+#		               common chatter list.
+#   2012-05-18, Nils G <weechatter@arcor.de>
+#       Version 0.3: missing return value for callbacks fixed
+#                    version check added
+#                    improved option handling
 #
 
 use strict;
